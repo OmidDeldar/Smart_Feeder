@@ -5,9 +5,12 @@ const char* password = "oM1234567890";
 int ledPin = 13; // LED PIN GPIO13
 int trig = D6;
 int echo = D5;
+int manualFeed = 0;
+int charge;
 float duration, distance;// declare two variable of type float for the time and the the distance
 WiFiServer server(80);
 Servo myservo;
+
 void setup() {
   Serial.begin(115200);
   pinMode(trig, OUTPUT);// initialize trig as an output
@@ -43,8 +46,8 @@ void setup() {
   Serial.println("/");
  
 }
- 
-void loop() {
+
+void ultrasonic(){
   digitalWrite(trig, LOW);// set trig to LOW
   delayMicroseconds(2);// wait 2 microseconds
   digitalWrite(trig, HIGH);// set trig to HIGH
@@ -52,9 +55,17 @@ void loop() {
   digitalWrite(trig, LOW);// set trig to LOW
   duration = pulseIn(echo, HIGH);// use the function pulsein to detect the time of the echo when it is in a high state
   distance = duration * 0.0343 / 2;// divide the time by 2 then multiply it by 0.0343
-  Serial.print("Distance: ");// print "Distance: "
-  Serial.print(distance);// print the value of distance
-  Serial.println(" cm");// print " cm"
+  charge = 100 - ((distance * 100) / 20);
+  Serial.println("charge: "+String(charge));
+  // Serial.print("Distance: ");// print "Distance: "
+  // Serial.print(distance);// print the value of distance
+  // Serial.println(" cm");// print " cm"
+}
+
+void loop() {
+  
+  ultrasonic();
+
   // Check if a client has connected
   WiFiClient client = server.available();
   if (!client) {
@@ -78,6 +89,7 @@ void loop() {
   if (request.indexOf("/FEED=ON") != -1)  {
     myservo.write(180); 
     digitalWrite(ledPin, HIGH);
+    manualFeed+=1;
     delay(500);
     myservo.write(0);
     digitalWrite(ledPin, LOW);
@@ -92,8 +104,9 @@ void loop() {
   client.println(""); //  do not forget this one
   client.println("<!DOCTYPE HTML>");
   client.println("<html>");
- 
-  client.print("fedding now: ");
+  client.print(manualFeed);
+  client.println();
+  client.print(charge);
  
   // if(value == HIGH) {
   //   client.print("On");

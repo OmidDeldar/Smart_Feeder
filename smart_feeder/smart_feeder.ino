@@ -21,12 +21,29 @@ String html_1 = R"=====(
  </style>
 
 <script>
+  let lastFedTime;
+  let nextFeedTime;
+  let nextFeedDate;
+  let appFeedCount = 0;
    function updateTime() 
   {  
        var d = new Date();
        var t = "";
        t = d.toLocaleTimeString();
        document.getElementById('P_time').innerHTML = t;
+       lastFedTime =localStorage.getItem("lastFedTime")
+       nextFeedTime = localStorage.getItem("nextFeedTime")
+       nextFeedDateStr =localStorage.getItem("nextFeedDate")
+       nextFeedDate = new Date(nextFeedDateStr);
+       console.log(typeof nextFeedDate);
+       console.log(typeof d);
+        console.log(d > nextFeedDate)
+       if(d > nextFeedDate){
+        console.log("----- in if -----")
+        appFeedCount += 1;
+        document.getElementById('appCount').innerHTML = appFeedCount;
+        switchFeed()
+       }
 
   }
    function updateCount() 
@@ -67,13 +84,23 @@ function ajaxLoad(ajaxURL)
       var tmpArray = ajaxResult.split("|");
       if(tmpArray[2] == "Empty!"){
        var d = new Date();
+       var newDate = new Date(d);
+       newDate.setMinutes(newDate.getMinutes() + 1);
+       nextFeedDate = newDate 
        var t = "";
-       t = d.toLocaleTimeString();
-       document.getElementById('fed_time').innerHTML = t;
+       lastFedTime = d.toLocaleTimeString();
+       document.getElementById('fed_time').innerHTML = lastFedTime;
+       let lastFedDate = new Date(d);
+       lastFedDate.setMinutes(lastFedDate.getMinutes() + 1);
+       nextFeedTime = lastFedDate.toLocaleTimeString();
+       document.getElementById('next_feed').innerHTML = nextFeedTime;
       }
       document.getElementById('count').innerHTML = tmpArray[0];
       document.getElementById('dst').innerHTML = tmpArray[1];
       document.getElementById('boul').innerHTML = tmpArray[2];
+      localStorage.setItem("lastFedTime", lastFedTime);
+      localStorage.setItem("nextFeedTime", nextFeedTime);
+      localStorage.setItem("nextFeedDate", nextFeedDate);
     }
   }
   ajaxRequest.send();
@@ -96,10 +123,12 @@ function ajaxLoad(ajaxURL)
        <p id='P_time'>-</p>
        <h2>Last fed time</h2>
        <p id='fed_time'>-</p>
+       <h2>Next feed schedule</h2>
+       <p id='next_feed'>-</p>
        <h2>Manual feed</h2>
-       <p> <span id='count'>0</span>  </p>
+       <p> <span id='count'>-</span>  </p>
        <h2>App feed</h2>
-       <p> <span id='appCount'>0</span>  </p>
+       <p> <span id='appCount'>-</span>  </p>
        <h2>Storage</h2>
        <p> <span id='dst'>NA</span> % </p>
        <h2>Boul status</h2>

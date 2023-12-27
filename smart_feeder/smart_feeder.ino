@@ -9,12 +9,15 @@ String html_1 = R"=====(
  <meta name='viewport' content='width=device-width, initial-scale=1.0'/>
  <meta charset='utf-8'>
  <style>
-  body {font-size:140%; background-color: purple;} 
-  #main {display: table; margin: auto;  padding: 0 10px 0 10px; }  
-  #FEED_button { padding:10px 10px 10px 10px; width:100%;  background-color: #50FF50; font-size: 120%;}
+  body {font-size:140%; background-color: #374453;} 
+  #main {display: table; margin: auto;  padding: 10px 100px 0 100px;   border-style: solid;
+  border-color: #bfc7d1;}  
+
+  #FEED_button { padding:10px 10px 10px 10px; width:100%;  background-color: #007400; font-size: 120%;}
   h2 {text-align:center; margin: 10px 0px 10px 0px;} 
   p { text-align:center; margin: 5px 0px 10px 0px; font-size: 120%;}
   #time_P { margin: 10px 0px 15px 0px;}
+
  </style>
 
 <script>
@@ -84,14 +87,9 @@ function ajaxLoad(ajaxURL)
 <body>
  <div id='main'>
   <h2>Pet Feeder</h2>
-)=====";
-
-String html_2 = R"=====(  
   <input type="button" id = "FEED_button" onclick="switchFeed()" value="Feed Now!"       /> 
-)=====";
-
-String html_4 = R"=====(    
- </div>
+  
+ 
  
      <div id='content'>
        <h2>Time</h2> 
@@ -106,6 +104,7 @@ String html_4 = R"=====(
        <p> <span id='dst'>NA</span> % </p>
        <h2>Boul status</h2>
        <p> <span id='boul'>NA</span>  </p>
+     </div>
      </div>
 </body>
 </html>
@@ -243,17 +242,11 @@ void loop() {
   }
   else {
     boolean pinStatus = digitalRead(LED_Pin);
-    if (pinStatus == HIGH) {
-      html_2.replace("Turn on the LED", "Turn off the LED");
-    } else {
-      html_2.replace("Turn off the LED", "Turn on the LED");
-    }
 
   client.flush();
   client.print(header);
   client.print(html_1);
-  client.print(html_2);
-  client.print(html_4);
+
 
   delay(5);
 }

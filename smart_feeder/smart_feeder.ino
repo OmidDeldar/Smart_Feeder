@@ -21,39 +21,21 @@ String html_1 = R"=====(
  </style>
 
 <script>
-  let lastFedTime;
-  let nextFeedTime;
-  let nextFeedDate;
-  let appFeedCount = 0;
+   
    function updateTime() 
   {  
        var d = new Date();
        var t = "";
        t = d.toLocaleTimeString();
        document.getElementById('P_time').innerHTML = t;
-       lastFedTime =localStorage.getItem("lastFedTime")
-       nextFeedTime = localStorage.getItem("nextFeedTime")
-       nextFeedDateStr =localStorage.getItem("nextFeedDate")
-       nextFeedDate = new Date(nextFeedDateStr);
-       console.log(typeof nextFeedDate);
-       console.log(typeof d);
-        console.log(d > nextFeedDate)
-       if(d > nextFeedDate){
-        console.log("----- in if -----")
-        appFeedCount += 1;
-        document.getElementById('appCount').innerHTML = appFeedCount;
-        switchFeed()
-       }
+
 
   }
-   function updateCount() 
+   function updateWeb() 
   {  
-       ajaxLoad('getCount'); 
+       ajaxLoad('getValues'); 
   }
-//   function updateTemp() 
-  //{  
-  //     ajaxLoad('getTemp'); 
-  //}
+
    function switchFeed() 
   {
        var button_text = document.getElementById("FEED_button").value;
@@ -61,7 +43,7 @@ String html_1 = R"=====(
        ajaxLoad('FeedOn'); 
        setTimeout(function() {
       document.getElementById("FEED_button").value = "Feed Now!";
-      },500)
+      },2000)
 
      
   }
@@ -82,30 +64,30 @@ function ajaxLoad(ajaxURL)
     {
       var ajaxResult = ajaxRequest.responseText;
       var tmpArray = ajaxResult.split("|");
-      if(tmpArray[2] == "Empty!"){
-       var d = new Date();
-       var newDate = new Date(d);
-       newDate.setMinutes(newDate.getMinutes() + 1);
-       nextFeedDate = newDate 
-       var t = "";
-       lastFedTime = d.toLocaleTimeString();
-       document.getElementById('fed_time').innerHTML = lastFedTime;
-       let lastFedDate = new Date(d);
-       lastFedDate.setMinutes(lastFedDate.getMinutes() + 1);
-       nextFeedTime = lastFedDate.toLocaleTimeString();
-       document.getElementById('next_feed').innerHTML = nextFeedTime;
-      }
+      console.log(tmpArray[4])
+      var d = new Date();
+      var currentTime = d.toLocaleTimeString();
+      var feedTime = tmpArray[4];  // in seconds
+      var nextFeedSchedule = 60 - feedTime
+      var previousFeed = new Date(d.getTime() - (feedTime * 1000));
+      var nextFeed = new Date(d.getTime() + (nextFeedSchedule * 1000));
+
+      // Format dates as strings
+      var previousFeedString = previousFeed.toLocaleTimeString();
+      var nextFeedString = nextFeed.toLocaleTimeString();
+
       document.getElementById('count').innerHTML = tmpArray[0];
       document.getElementById('dst').innerHTML = tmpArray[1];
       document.getElementById('boul').innerHTML = tmpArray[2];
-      localStorage.setItem("lastFedTime", lastFedTime);
-      localStorage.setItem("nextFeedTime", nextFeedTime);
-      localStorage.setItem("nextFeedDate", nextFeedDate);
+      document.getElementById('appCount').innerHTML = tmpArray[3];
+      document.getElementById('fed_time').innerHTML =previousFeedString;
+      document.getElementById('next_feed').innerHTML =nextFeedString;
+
     }
   }
   ajaxRequest.send();
 }
-   // var myVar1 = setInterval(updateTemp, 5000);
+    var myVar1 = setInterval(updateWeb, 5000);
     var myVar2 = setInterval(updateTime, 1000);    
 </script>
 
@@ -159,7 +141,13 @@ const int ldrPin = A0;  // select the input pin for the potentiometer
 int ldrValue = 0;       // variable to store the value coming from the sensor
 Servo myservo;
 int manualFeed = 0;
+int appFeed = 0;
 int boulStatus = 0;
+unsigned long previousFeed = 0;    // will store last time the  action was executed
+unsigned long feedTiming = 60000;  // interval for the first action in milliseconds (2 minutes)
+unsigned long startTime;
+int countTimer = 1;
+const int interval = 1000;  // 1000 milliseconds = 1 second
 void setup() {
   pinMode(LED_Pin, OUTPUT);
   myservo.attach(D1);
@@ -185,11 +173,15 @@ void setup() {
   Serial.print("[IP ");
   Serial.print(WiFi.localIP());
   Serial.println("]");
+  startTime = millis();  // Record the start time
 
   // start a server
   server.begin();
   Serial.println("Server started");
 
+  // ultrasonic();
+  // boul();
+  // feed();
 
 }  // void setup()
 
@@ -223,7 +215,42 @@ void boul() {
     boulStatus = 1;
   }
 }
+
+void feed() {
+  if (boulStatus == 0) {
+    myservo.write(180);
+    digitalWrite(LED_Pin, HIGH);
+    delay(2000);
+    myservo.write(0);
+    digitalWrite(LED_Pin, LOW);
+  } else {
+  }
+}
 void loop() {
+
+  unsigned long currentMillis = millis();
+
+  // Check if it's time to perform the first action
+  if (currentMillis - startTime >= interval) {
+    // Reset the timer
+    startTime = currentMillis;
+
+
+
+    // Increment the countTimer and reset to 1 if it reaches 60
+    countTimer = (countTimer % 60) + 1;
+  }
+  if (countTimer == 60) {
+    // Save the current time
+
+    previousFeed = currentMillis;
+    ultrasonic();
+    boul();
+    delay(500);
+    feed();
+    appFeed += 1;
+  }
+
   // Check if a client has connected
   WiFiClient client = server.available();
   if (!client) { return; }
@@ -233,32 +260,21 @@ void loop() {
 
   Serial.print("request: ");
   Serial.println(request);
-
-
-  if (request.indexOf("FeedOn") > 0) {
+  if (request.indexOf("getValues") > 0) {
     ultrasonic();
     boul();
-    // charge = 100 - ((distance * 100) / 20);
-    // Serial.println("charge: "+String(charge));
-    // if (distance > 0) {
-    //   client.print(header);
-    //   client.print(distance);
-    //   Serial.println("data sent");
-    // }
     if (boulStatus == 0) {
-      myservo.write(180);
-      digitalWrite(LED_Pin, HIGH);
-      manualFeed += 1;
       client.print(header);
       client.print(manualFeed);
       client.print("|");
       client.print(charge);
       client.print("|");
       client.print("Empty!");
+      client.print("|");
+      client.print(appFeed);
+      client.print("|");
+      client.print(countTimer);
       Serial.println("data sent");
-      delay(500);
-      myservo.write(0);
-      digitalWrite(LED_Pin, LOW);
     } else {
       client.print(header);
       client.print(manualFeed);
@@ -266,20 +282,61 @@ void loop() {
       client.print(charge);
       client.print("|");
       client.print("Not empty!");
+      client.print("|");
+      client.print(appFeed);
+      client.print("|");
+      client.print(countTimer);
       Serial.println("data sent");
     }
+  } else if (request.indexOf("FeedOn") > 0) {
+    ultrasonic();
+    boul();
+    manualFeed += 1;
+    if (boulStatus == 0) {
+      feed();
+      countTimer = 1;
+      client.print(header);
+      client.print(manualFeed);
+      client.print("|");
+      client.print(charge);
+      client.print("|");
+      client.print("Empty!");
+      client.print("|");
+      client.print(appFeed);
+      client.print("|");
+      client.print(countTimer);
+      Serial.println("data sent");
+    } else {
+      client.print(header);
+      client.print(manualFeed);
+      client.print("|");
+      client.print(charge);
+      client.print("|");
+      client.print("Not empty!");
+      client.print("|");
+      client.print(appFeed);
+      client.print("|");
+      client.print(countTimer);
+      Serial.println("data sent");
+    }
+    // charge = 100 - ((distance * 100) / 20);
+    // Serial.println("charge: "+String(charge));
+    // if (distance > 0) {
+    //   client.print(header);
+    //   client.print(distance);
+    //   Serial.println("data sent");
+    // }
+
+  } else {
+
+    client.flush();
+    client.print(header);
+    client.print(html_1);
+
+
+    delay(5);
   }
-  else {
-    boolean pinStatus = digitalRead(LED_Pin);
-
-  client.flush();
-  client.print(header);
-  client.print(html_1);
 
 
-  delay(5);
-}
-
-
-// The client will actually be disconnected when the function returns and 'client' object is detroyed
+  // The client will actually be disconnected when the function returns and 'client' object is detroyed
 }  // void loop()

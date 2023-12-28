@@ -78,6 +78,12 @@ function ajaxLoad(ajaxURL)
 
       document.getElementById('count').innerHTML = tmpArray[0];
       document.getElementById('dst').innerHTML = tmpArray[1];
+      if(tmpArray[1] < 20){
+        document.getElementById("dst").style.color = "#880a0a";
+      }
+      else{
+        document.getElementById("dst").style.color = "black"; 
+      }
       document.getElementById('boul').innerHTML = tmpArray[2];
       document.getElementById('appCount').innerHTML = tmpArray[3];
       document.getElementById('fed_time').innerHTML =previousFeedString;

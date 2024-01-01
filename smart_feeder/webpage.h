@@ -204,25 +204,6 @@ function ajaxLoad(ajaxURL)
     var myVar2 = setInterval(updateTime, 1000);
 
 
-          // arrays to hold the svg data for the sun icon
-  var svgArray = [];
-  svgArray[0] = "<?xml version='1.0' encoding='UTF-8'?> <!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'> <svg xmlns='http://www.w3.org/2000/svg' xml:space='preserve' width='25mm' height='25mm' version='1.1' viewBox='0 0 2500 2500'   xmlns:xlink='http://www.w3.org/1999/xlink'> <defs> <style type='text/css'> <![CDATA[ .str0 {stroke:#aaaaaa; stroke-width:20.00} .str1 {stroke:#aaaaaa; stroke-width:7.5} .str2 {stroke:#aaaaaa; stroke-width:15.00} .fil0 {fill:black} .fil1 {fill:yellow} .fnt0 {font-weight:normal;font-size:400px;font-family:'Verdana'} ]]> </style> </defs> <g id='Layer_x0020_1'> <circle class='fil1 str2' cx='1250' cy='1250' r='680'/>";
-  //svgArray[0] = svgArray[0] + "<text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' class='fil0 fnt0'>[bright]</text>";
-  svgArray[1] = "<rect class='fil1 str0' transform='matrix(0.133299 -0.23088 0.246464 0.142296 1562.82 538.757)' width='1604' height='595' rx='280' ry='280'/>";
-  svgArray[2] = "<rect class='fil1 str0' transform='matrix(0.23088 -0.133299 0.142296 0.246464 1876.53 790.456)' width='1604' height='595' rx='280' ry='280'/>";
-  svgArray[3] = "<rect class='fil1 str1' x='2022' y='1165' width='428' height='169' rx='75' ry='80'/>";
-  svgArray[4] = "<rect class='fil1 str0' transform='matrix(-0.23088 -0.133299 0.142296 -0.246464 2246.87 1923.36)' width='1604' height='595' rx='280' ry='280'/>";
-  svgArray[5] = "<rect class='fil1 str0' transform='matrix(-0.133299 -0.23088 0.246464 -0.142296 1776.64 2331.58)' width='1604' height='595' rx='280' ry='280'/>";
-  svgArray[6] = "<rect class='fil1 str0' transform='matrix(-2.11373E-014 0.266598 -0.284592 -2.25059E-014 1334.71 2022.37)' width='1604' height='595' rx='280' ry='280'/>";
-  svgArray[7] = "<rect class='fil1 str0' transform='matrix(0.133299 -0.23088 0.246464 0.142296 576.632 2246.88)' width='1604' height='595' rx='280' ry='280'/> ";
-  svgArray[8] = "<rect class='fil1 str0' transform='matrix(0.23088 -0.133299 0.142296 0.246464 168.409 1776.64)' width='1604' height='595' rx='280' ry='280'/>";
-  svgArray[9] = "<rect class='fil1 str1' x='50' y='1165' width='428' height='169' rx='75' ry='80'/>";
-  svgArray[10] = "<rect class='fil1 str0' transform='matrix(-0.23088 -0.133299 0.142296 -0.246464 538.753 937.178)' width='1604' height='595' rx='280' ry='280'/>";
-  svgArray[11] = "<rect class='fil1 str0' transform='matrix(-0.133299 -0.23088 0.246464 -0.142296 790.452 623.465)' width='1604' height='595' rx='280' ry='280'/>";
-  svgArray[12] = "<rect class='fil1 str0' transform='matrix(-2.11373E-014 0.266598 -0.284592 -2.25059E-014 1334.71 50.0007)' width='1604' height='595' rx='280' ry='280'/>";
-  // ]]>    
-</script>
-  
 </script>
 
  <title>Pet Feeder</title>

@@ -29,7 +29,7 @@ void setup() {
   Serial.begin(115200);
   Serial.println();
   Serial.println("Serial started at 115200");
-  Serial.println("ESP8266_LED_CONTROL_AJAX_02");
+  Serial.println("PET_FEEDER_AUTOMATION");
   Serial.println();
   pinMode(trig, OUTPUT);  // initialize trig as an output
   pinMode(echo, INPUT);   // initialize echo as an input

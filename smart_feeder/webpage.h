@@ -15,21 +15,18 @@ String html_1 = R"=====(
 
   canvas {margin: 0px 0px 0px 30px; background-color: #ffffff;}
   #FEED_button { padding:10px 10px 10px 10px; width:100%;  background-color: #007400; font-size: 120%;}
-  h2 {text-align:center; margin: 10px 0px 10px 0px;} 
+  h2 ,h1{text-align:center; margin: 10px 0px 10px 0px;} 
   p { text-align:center; margin: 5px 0px 10px 0px; font-size: 120%;}
   #time_P { margin: 10px 0px 15px 0px;}
  </style>
 
 <script>
-   var tankArray = [ -9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999,-9999 ];
    function updateTime() 
   {  
        var d = new Date();
        var t = "";
        t = d.toLocaleTimeString();
        document.getElementById('P_time').innerHTML = t;
-
-
   }
    function updateWeb() 
   {  
@@ -48,9 +45,6 @@ String html_1 = R"=====(
      
   }
 
-var ajaxRequest = null;
-if (window.XMLHttpRequest)  { ajaxRequest =new XMLHttpRequest(); }
-else                        { ajaxRequest =new ActiveXObject("Microsoft.XMLHTTP"); }
 
   // ===========================================  DIAL  =========================================
   
@@ -155,6 +149,11 @@ else                        { ajaxRequest =new ActiveXObject("Microsoft.XMLHTTP"
  
   }
 
+var ajaxRequest = null;
+if (window.XMLHttpRequest)  { ajaxRequest =new XMLHttpRequest(); }
+else                        { ajaxRequest =new ActiveXObject("Microsoft.XMLHTTP"); }
+
+
 function ajaxLoad(ajaxURL)
 {
   if(!ajaxRequest){ alert("AJAX is not supported."); return; }
@@ -180,7 +179,13 @@ function ajaxLoad(ajaxURL)
       drawDial('canvasTank', '#aaaaff', 160, 20,   0, 100, tmpArray[1]);
       document.getElementById('count').innerHTML = tmpArray[0];
       document.getElementById('dst').innerHTML = tmpArray[1];
-      if(tmpArray[1] < 20){
+      if( tmpArray[2] == 'Not empty!' ){
+        document.getElementById("boul").style.color = "#880a0a";
+      }
+      else{
+        document.getElementById("boul").style.color = "black"; 
+      }
+      if(tmpArray[1] < 20 ){
         document.getElementById("dst").style.color = "#880a0a";
       }
       else{
@@ -198,7 +203,8 @@ function ajaxLoad(ajaxURL)
     var myVar1 = setInterval(updateWeb, 5000);
     var myVar2 = setInterval(updateTime, 1000);
 
-      // arrays to hold the svg data for the sun icon
+
+          // arrays to hold the svg data for the sun icon
   var svgArray = [];
   svgArray[0] = "<?xml version='1.0' encoding='UTF-8'?> <!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'> <svg xmlns='http://www.w3.org/2000/svg' xml:space='preserve' width='25mm' height='25mm' version='1.1' viewBox='0 0 2500 2500'   xmlns:xlink='http://www.w3.org/1999/xlink'> <defs> <style type='text/css'> <![CDATA[ .str0 {stroke:#aaaaaa; stroke-width:20.00} .str1 {stroke:#aaaaaa; stroke-width:7.5} .str2 {stroke:#aaaaaa; stroke-width:15.00} .fil0 {fill:black} .fil1 {fill:yellow} .fnt0 {font-weight:normal;font-size:400px;font-family:'Verdana'} ]]> </style> </defs> <g id='Layer_x0020_1'> <circle class='fil1 str2' cx='1250' cy='1250' r='680'/>";
   //svgArray[0] = svgArray[0] + "<text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' class='fil0 fnt0'>[bright]</text>";
@@ -216,12 +222,14 @@ function ajaxLoad(ajaxURL)
   svgArray[12] = "<rect class='fil1 str0' transform='matrix(-2.11373E-014 0.266598 -0.284592 -2.25059E-014 1334.71 50.0007)' width='1604' height='595' rx='280' ry='280'/>";
   // ]]>    
 </script>
+  
+</script>
 
  <title>Pet Feeder</title>
 </head>
 <body>
  <div id='main'>
-  <h2>Pet Feeder</h2>
+  <h1>Pet Feeder</h1>
   <input type="button" id = "FEED_button" onclick="switchFeed()" value="Feed Now!"       /> 
   
  
@@ -233,15 +241,15 @@ function ajaxLoad(ajaxURL)
        <p id='fed_time'>-</p>
        <h2>Next feed schedule</h2>
        <p id='next_feed'>-</p>
-       <h2>Manual feed</h2>
+       <h2>Manual feeds</h2>
        <p> <span id='count'>-</span>  </p>
-       <h2>App feed</h2>
+       <h2>App feeds</h2>
        <p> <span id='appCount'>-</span>  </p>
+       <h2>Boul status</h2>
+       <p> <span id='boul'>NA</span>  </p>
        <h2>Storage</h2>
        <canvas id='canvasTank' width='200' height='150'  style='border:1px solid #000000;' > </canvas>
        <p> <span id='dst'>NA</span> % </p>
-       <h2>Boul status</h2>
-       <p> <span id='boul'>NA</span>  </p>
      </div>
      </div>
 </body>

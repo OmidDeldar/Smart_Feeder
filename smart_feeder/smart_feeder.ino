@@ -1,11 +1,6 @@
-
-
-
-
-
 #include <ESP8266WiFi.h>
 #include <Servo.h>
-#include "webpage.h"
+#include "webPage.h"
 // change these values to match your network
 char ssid[] = "Omid";          //  your network SSID (name)
 char pass[] = "oM1234567890";  //  your network password
@@ -98,13 +93,29 @@ void boul() {
 
 void feed() {
   if (boulStatus == 0) {
-    myservo.write(180);
-    digitalWrite(LED_Pin, HIGH);
-    delay(2000);
-    myservo.write(0);
-    digitalWrite(LED_Pin, LOW);
+    if (charge != 0) {
+      myservo.write(180);
+      digitalWrite(LED_Pin, HIGH);
+      delay(2000);
+      myservo.write(0);
+      digitalWrite(LED_Pin, LOW);
+    }
   } else {
   }
+}
+void sendValues(WiFiClient client) {
+    client.print(header);
+    client.print(manualFeed);
+    client.print("|");
+    client.print(charge);
+    client.print("|");
+    if (boulStatus == 0) {client.print("Empty!");}
+    else { client.print("Not empty!"); }
+    client.print("|");
+    client.print(appFeed);
+    client.print("|");
+    client.print(countTimer);
+    Serial.println("data sent");
 }
 void loop() {
 
@@ -114,8 +125,6 @@ void loop() {
   if (currentMillis - startTime >= interval) {
     // Reset the timer
     startTime = currentMillis;
-
-
 
     // Increment the countTimer and reset to 1 if it reaches 60
     countTimer = (countTimer % 60) + 1;
@@ -143,31 +152,7 @@ void loop() {
   if (request.indexOf("getValues") > 0) {
     ultrasonic();
     boul();
-    if (boulStatus == 0) {
-      client.print(header);
-      client.print(manualFeed);
-      client.print("|");
-      client.print(charge);
-      client.print("|");
-      client.print("Empty!");
-      client.print("|");
-      client.print(appFeed);
-      client.print("|");
-      client.print(countTimer);
-      Serial.println("data sent");
-    } else {
-      client.print(header);
-      client.print(manualFeed);
-      client.print("|");
-      client.print(charge);
-      client.print("|");
-      client.print("Not empty!");
-      client.print("|");
-      client.print(appFeed);
-      client.print("|");
-      client.print(countTimer);
-      Serial.println("data sent");
-    }
+    sendValues(client);
   } else if (request.indexOf("FeedOn") > 0) {
     ultrasonic();
     boul();
@@ -175,44 +160,14 @@ void loop() {
     if (boulStatus == 0) {
       feed();
       countTimer = 1;
-      client.print(header);
-      client.print(manualFeed);
-      client.print("|");
-      client.print(charge);
-      client.print("|");
-      client.print("Empty!");
-      client.print("|");
-      client.print(appFeed);
-      client.print("|");
-      client.print(countTimer);
-      Serial.println("data sent");
-    } else {
-      client.print(header);
-      client.print(manualFeed);
-      client.print("|");
-      client.print(charge);
-      client.print("|");
-      client.print("Not empty!");
-      client.print("|");
-      client.print(appFeed);
-      client.print("|");
-      client.print(countTimer);
-      Serial.println("data sent");
     }
-    // charge = 100 - ((distance * 100) / 20);
-    // Serial.println("charge: "+String(charge));
-    // if (distance > 0) {
-    //   client.print(header);
-    //   client.print(distance);
-    //   Serial.println("data sent");
-    // }
+    sendValues(client);
 
   } else {
 
     client.flush();
     client.print(header);
     client.print(html_1);
-
 
     delay(5);
   }

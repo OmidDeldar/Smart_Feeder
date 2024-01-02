@@ -73,12 +73,12 @@ void ultrasonic() {
   if (charge < 0) {
     charge = 0;
   }
-  // if(charge < 20){
-  //   digitalWrite(LED_Pin, HIGH);
-  // }
-  // else{
-  //   digitalWrite(LED_Pin, LOW);
-  // }
+  if(charge < 20){
+    digitalWrite(LED_Pin, HIGH);
+  }
+  else{
+    digitalWrite(LED_Pin, LOW);
+  }
   Serial.println(distance);
 }
 void boul() {

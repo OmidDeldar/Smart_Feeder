@@ -79,10 +79,12 @@ void ultrasonic() {
   else{
     digitalWrite(LED_Pin, LOW);
   }
+  Serial.print("distance: ");
   Serial.println(distance);
 }
 void boul() {
   ldrValue = analogRead(ldrPin);
+  Serial.print("ldr Value: ");
   Serial.println(ldrValue);
   if (ldrValue > 190) {
     boulStatus = 0;
@@ -95,10 +97,10 @@ void feed() {
   if (boulStatus == 0) {
     if (charge != 0) {
       myservo.write(180);
-      digitalWrite(LED_Pin, HIGH);
+      // digitalWrite(LED_Pin, HIGH);
       delay(2000);
       myservo.write(0);
-      digitalWrite(LED_Pin, LOW);
+      // digitalWrite(LED_Pin, LOW);
     }
   } else {
   }
@@ -120,6 +122,7 @@ void sendValues(WiFiClient client) {
 void loop() {
 
   unsigned long currentMillis = millis();
+  myservo.write(0);
 
   // Check if it's time to perform the first action
   if (currentMillis - startTime >= interval) {
@@ -156,8 +159,8 @@ void loop() {
   } else if (request.indexOf("FeedOn") > 0) {
     ultrasonic();
     boul();
-    manualFeed += 1;
-    if (boulStatus == 0) {
+    if (boulStatus == 0 && charge != 0) {
+      manualFeed += 1;
       feed();
       countTimer = 1;
     }

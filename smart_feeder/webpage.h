@@ -203,14 +203,14 @@ function ajaxLoad(ajaxURL)
     var myVar1 = setInterval(updateWeb, 5000);
     var myVar2 = setInterval(updateTime, 1000);
 
-
+  
 </script>
 
- <title>Pet Feeder</title>
+ <title>Smart Feeder</title>
 </head>
 <body>
  <div id='main'>
-  <h1>Pet Feeder</h1>
+  <h1>Smart Feeder</h1>
   <input type="button" id = "FEED_button" onclick="switchFeed()" value="Feed Now!"       /> 
   
  

@@ -3,34 +3,34 @@
 #include "webPage.h"
 #include <ESP8266HTTPClient.h>
 
-// change these values to match your network
-char ssid[] = "Omid";          //  your network SSID (name)
-char pass[] = "oM1234567890";  //  your network password
+
+char ssid[] = "Omid";          
+char pass[] = "oM1234567890";  
 WiFiServer server(80);
 
 const char* serverAddress = "192.168.170.148";
-const int serverPort = 3000;  // Replace with the port your API is running on
+const int serverPort = 3000; 
 const String apiEndpoint = "/email?to=omiddeldar.om@gmail.com&storage=";
-const long intervalMail = 24 * 60 * 60 * 1000;  // 24 hours in milliseconds
+const long intervalMail = 24 * 60 * 60 * 1000;  
 unsigned long previousMillis = 0;
 bool sendEmail = true;
 int trig = D6;
 int echo = D5;
-float duration, distance;  // declare two variable of type float for the time and the the distance
+float duration, distance;  
 int charge;
 String request = "";
 int LED_Pin = 13;
-const int ldrPin = A0;  // select the input pin for the potentiometer
-int ldrValue = 0;       // variable to store the value coming from the sensor
+const int ldrPin = A0;  
+int ldrValue = 0;       
 Servo myservo;
 int manualFeed = 0;
 int appFeed = 0;
 int boulStatus = 0;
-unsigned long previousFeed = 0;    // will store last time the  action was executed
-unsigned long feedTiming = 60000;  // interval for the first action in milliseconds (2 minutes)
+unsigned long previousFeed = 0;    
+unsigned long feedTiming = 60000;  
 unsigned long startTime;
 int countTimer = 1;
-const int interval = 1000;  // 1000 milliseconds = 1 second
+const int interval = 1000;  
 void setup() {
   pinMode(LED_Pin, OUTPUT);
   myservo.attach(D1);
@@ -39,8 +39,8 @@ void setup() {
   Serial.println("Serial started at 115200");
   Serial.println("SMART_FEEDER_AUTOMATION");
   Serial.println();
-  pinMode(trig, OUTPUT);  // initialize trig as an output
-  pinMode(echo, INPUT);   // initialize echo as an input
+  pinMode(trig, OUTPUT);  
+  pinMode(echo, INPUT);   
   // Connect to a WiFi network
   Serial.print(F("Connecting to "));
   Serial.println(ssid);
@@ -56,18 +56,17 @@ void setup() {
   Serial.print("[IP ");
   Serial.print(WiFi.localIP());
   Serial.println("]");
-  startTime = millis();  // Record the start time
+  startTime = millis();  
 
   // start a server
   server.begin();
   Serial.println("Server started");
 
-  // ultrasonic();
-  // boul();
-  // feed();
+
 
 }  // void setup()
 
+// send warning email for storage 
 void SendWarningEmail() {
   if (sendEmail) {
     sendEmail = false;
@@ -90,14 +89,15 @@ void SendWarningEmail() {
   }
 }
 
+// measure the distance in storage
 void ultrasonic() {
-  digitalWrite(trig, LOW);           // set trig to LOW
-  delayMicroseconds(2);              // wait 2 microseconds
-  digitalWrite(trig, HIGH);          // set trig to HIGH
-  delayMicroseconds(10);             // wait 10 microseconds
-  digitalWrite(trig, LOW);           // set trig to LOW
-  duration = pulseIn(echo, HIGH);    // use the function pulsein to detect the time of the echo when it is in a high state
-  distance = duration * 0.0343 / 2;  // divide the time by 2 then multiply it by 0.0343
+  digitalWrite(trig, LOW);           
+  delayMicroseconds(2);              
+  digitalWrite(trig, HIGH);          
+  delayMicroseconds(10);             
+  digitalWrite(trig, LOW);           
+  duration = pulseIn(echo, HIGH);    
+  distance = duration * 0.0343 / 2;  
   charge = 100 - ((distance * 100) / 20);
   if (charge < 0) {
     charge = 0;
@@ -111,6 +111,8 @@ void ultrasonic() {
   Serial.print("distance: ");
   Serial.println(distance);
 }
+
+// check the boul status(empty or full)
 void boul() {
   ldrValue = analogRead(ldrPin);
   Serial.print("ldr Value: ");
@@ -122,6 +124,7 @@ void boul() {
   }
 }
 
+// open the gate using sg90
 void feed() {
   if (boulStatus == 0) {
     if (charge != 0) {
@@ -136,7 +139,7 @@ void feed() {
 }
 
 
-
+// send data to web every 5 second
 void sendValues(WiFiClient client) {
   client.print(header);
   client.print(manualFeed);
@@ -154,6 +157,8 @@ void sendValues(WiFiClient client) {
   client.print(countTimer);
   Serial.println("data sent");
 }
+
+
 void loop() {
 
   unsigned long currentMillis = millis();
@@ -166,14 +171,12 @@ void loop() {
 
   // Check if its time to feed
   if (currentMillis - startTime >= interval) {
-    // Reset the timer
     startTime = currentMillis;
 
-    // reset if its 1 minute(60 sec)
+    
     countTimer = (countTimer % 60) + 1;
   }
   if (countTimer == 60) {
-    // Save the current time
 
     previousFeed = currentMillis;
     ultrasonic();
@@ -192,6 +195,8 @@ void loop() {
 
   Serial.print("request: ");
   Serial.println(request);
+
+  // request from web 
   if (request.indexOf("getValues") > 0) {
     ultrasonic();
     boul();
@@ -216,5 +221,4 @@ void loop() {
   }
 
 
-  // The client will actually be disconnected when the function returns and 'client' object is detroyed
 }  // void loop()

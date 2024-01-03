@@ -72,7 +72,7 @@ void SendWarningEmail() {
   if (sendEmail) {
     sendEmail = false;
     HTTPClient http;
-    String url = "http://" + String(serverAddress) + ":" + String(serverPort) + apiEndpoint + 20;
+    String url = "http://" + String(serverAddress) + ":" + String(serverPort) + apiEndpoint + charge;
     WiFiClient client;
 
     http.begin(client, url);

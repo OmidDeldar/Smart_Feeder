@@ -1,11 +1,19 @@
 #include <ESP8266WiFi.h>
 #include <Servo.h>
 #include "webPage.h"
+#include <ESP8266HTTPClient.h>
+
 // change these values to match your network
 char ssid[] = "Omid";          //  your network SSID (name)
 char pass[] = "oM1234567890";  //  your network password
-
 WiFiServer server(80);
+
+const char* serverAddress = "192.168.170.148";
+const int serverPort = 3000;  // Replace with the port your API is running on
+const String apiEndpoint = "/email?to=omiddeldar.om@gmail.com&storage=";
+const long intervalMail = 24 * 60 * 60 * 1000;  // 24 hours in milliseconds
+unsigned long previousMillis = 0;
+bool sendEmail = true;
 int trig = D6;
 int echo = D5;
 float duration, distance;  // declare two variable of type float for the time and the the distance
@@ -29,7 +37,7 @@ void setup() {
   Serial.begin(115200);
   Serial.println();
   Serial.println("Serial started at 115200");
-  Serial.println("PET_FEEDER_AUTOMATION");
+  Serial.println("SMART_FEEDER_AUTOMATION");
   Serial.println();
   pinMode(trig, OUTPUT);  // initialize trig as an output
   pinMode(echo, INPUT);   // initialize echo as an input
@@ -60,6 +68,27 @@ void setup() {
 
 }  // void setup()
 
+void SendWarningEmail() {
+  if (sendEmail) {
+    sendEmail = false;
+    HTTPClient http;
+    String url = "http://" + String(serverAddress) + ":" + String(serverPort) + apiEndpoint + 20;
+    WiFiClient client;
+
+    http.begin(client, url);
+
+    int httpResponseCode = http.GET();
+    if (httpResponseCode > 0) {
+      String payload = http.getString();
+      Serial.println("HTTP Response code: " + String(httpResponseCode));
+      Serial.println("Response payload: " + payload);
+    } else {
+      Serial.println("HTTP Request failed");
+    }
+
+    http.end();
+  }
+}
 
 void ultrasonic() {
   digitalWrite(trig, LOW);           // set trig to LOW
@@ -73,10 +102,10 @@ void ultrasonic() {
   if (charge < 0) {
     charge = 0;
   }
-  if(charge < 20){
+  if (charge < 20) {
     digitalWrite(LED_Pin, HIGH);
-  }
-  else{
+    SendWarningEmail();
+  } else {
     digitalWrite(LED_Pin, LOW);
   }
   Serial.print("distance: ");
@@ -105,31 +134,42 @@ void feed() {
   } else {
   }
 }
+
+
+
 void sendValues(WiFiClient client) {
-    client.print(header);
-    client.print(manualFeed);
-    client.print("|");
-    client.print(charge);
-    client.print("|");
-    if (boulStatus == 0) {client.print("Empty!");}
-    else { client.print("Not empty!"); }
-    client.print("|");
-    client.print(appFeed);
-    client.print("|");
-    client.print(countTimer);
-    Serial.println("data sent");
+  client.print(header);
+  client.print(manualFeed);
+  client.print("|");
+  client.print(charge);
+  client.print("|");
+  if (boulStatus == 0) {
+    client.print("Empty!");
+  } else {
+    client.print("Not empty!");
+  }
+  client.print("|");
+  client.print(appFeed);
+  client.print("|");
+  client.print(countTimer);
+  Serial.println("data sent");
 }
 void loop() {
 
   unsigned long currentMillis = millis();
   myservo.write(0);
+  unsigned long warningMillis = millis();
+  //check if its 24 hours
+  if (warningMillis - previousMillis >= intervalMail) {
+    sendEmail = true;
+  }
 
-  // Check if it's time to perform the first action
+  // Check if its time to feed
   if (currentMillis - startTime >= interval) {
     // Reset the timer
     startTime = currentMillis;
 
-    // Increment the countTimer and reset to 1 if it reaches 60
+    // reset if its 1 minute(60 sec)
     countTimer = (countTimer % 60) + 1;
   }
   if (countTimer == 60) {

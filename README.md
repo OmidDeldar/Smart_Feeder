@@ -1,0 +1,1 @@
+Smart Pet Feeder, powered by an ESP8266 and etc, automates pet feeding through scheduled, controlled dispensing. Offering remote monitoring and adjustment via a web, it ensures timely, customizable feeding for pets, enhancing convenience for pet owners.

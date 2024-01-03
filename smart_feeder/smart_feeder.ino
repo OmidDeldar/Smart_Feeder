@@ -115,7 +115,7 @@ void boul() {
   ldrValue = analogRead(ldrPin);
   Serial.print("ldr Value: ");
   Serial.println(ldrValue);
-  if (ldrValue > 190) {
+  if (ldrValue > 400) {
     boulStatus = 0;
   } else {
     boulStatus = 1;

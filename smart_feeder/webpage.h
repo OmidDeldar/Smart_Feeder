@@ -46,7 +46,6 @@ String html_1 = R"=====(
   }
 
 
-  // ===========================================  DIAL  =========================================
   
   function drawDial(canvasID, dialColour, startAngle, stopAngle, minVal, maxVal, dialValue)
   {
